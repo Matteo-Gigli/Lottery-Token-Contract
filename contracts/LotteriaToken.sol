@@ -14,6 +14,11 @@ contract LotteriaToken is Ownable, ERC20{
     LotteriaInfo private lotteryInfo;
     Lotteria private lottery;
 
+    modifier onlyLotteria(){
+        msg.sender == address(lottery);
+        _;
+    }
+
     constructor(string memory name, string memory symbol, uint totalSupply)ERC20(name, symbol){
         _mint(msg.sender, totalSupply);
         _balances[msg.sender] = totalSupply;
@@ -70,10 +75,10 @@ contract LotteriaToken is Ownable, ERC20{
 
 
 
-    function sendToken(address _to, uint _amount)external{
-        require(_balances[msg.sender] >= _amount, "No Necessary Funds!");
+    function sendToken(address _to, uint _amount)external onlyLotteria{
         require(msg.sender != owner(), "Admin send tokens only during the withdraw!");
-        _transfer(msg.sender, _to, _amount);
+        require(_balances[owner()] >= _amount, "Tokens Ended!");
+        _transfer(owner(), _to, _amount);
         _approve(msg.sender, address(lottery), _amount);
     }
 

@@ -72,4 +72,13 @@ contract Lotteria is Ownable{
         address winner = bidderAddress[random(_tokenIds) % bidderAddressCount];
         lotteryInfo.setWinnerLottery(_tokenIds, winner);
     }
+
+
+    function buyTokens()external payable{
+        uint buyAmount = 10;
+        require(msg.sender != owner(), "Admin Cannot Buy Tokens!");
+        require(msg.value == 0.2 ether, "Please set the right price!");
+        payable(owner()).transfer(msg.value);
+        lotteryToken.sendToken(msg.sender, buyAmount);
+    }
 }

@@ -27,13 +27,13 @@ contract("LotteriaContract testing functions", function(accounts){
     it("Should create an item to sell", async()=>{
         let instance = await Lotteria.deployed();
         let lotteriaInfoInstance = await LotteriaInfo.deployed();
-        await instance.setItemToWin("Auto", 2, 1650983068);
+        await instance.setItemToWin("Auto", 2, 1650988528);
         let name = await lotteriaInfoInstance.getItemName(1);
         let defaultTokensBid = await lotteriaInfoInstance.getDefaultStartingPrice(1);
         let closingBid = await lotteriaInfoInstance.getEndingTimeLottery(1);
         assert.equal(name, "Auto");
         assert.equal(defaultTokensBid, 2);
-        assert.equal(closingBid, 1650983068);
+        assert.equal(closingBid, 1650988528);
     });
 
 
@@ -44,7 +44,7 @@ contract("LotteriaContract testing functions", function(accounts){
         await lotteriaTokenInstance.initLotteryContract(instance.address);
         await lotteriaTokenInstance.initLotteryInfoContract(lotteriaInfoInstance.address);
         await lotteriaTokenInstance.withdraw({from: accounts[2]});
-        await instance.setItemToWin("Auto", 2, 1650983068);
+        await instance.setItemToWin("Auto", 2, 1650988528);
         let balance = await lotteriaTokenInstance.balanceOf(accounts[2]);
         assert.equal(balance, 5);
         await instance.placeABid(1, {from:accounts[2]});
@@ -62,7 +62,7 @@ contract("LotteriaContract testing functions", function(accounts){
         await lotteriaTokenInstance.withdraw({from: accounts[3]});
         await lotteriaTokenInstance.withdraw({from: accounts[4]});
         await lotteriaTokenInstance.withdraw({from: accounts[5]});
-        await instance.setItemToWin("Auto", 2, 1650983068);
+        await instance.setItemToWin("Auto", 2, 1650988528);
         await instance.placeABid(1, {from: accounts[3]});
         await instance.placeABid(1, {from: accounts[4]});
         await instance.placeABid(1, {from: accounts[5]});
@@ -71,8 +71,18 @@ contract("LotteriaContract testing functions", function(accounts){
         const newBlock = await helper.advanceTiming(advancement);
         await instance.pickTheWinner(1);
         let winnerIs = await lotteriaInfoInstance.getWinner(1);
-        let accountsOnSearch = (accounts[3] || accounts[4] || accounts[5]);
-        assert.equal(winnerIs, accountsOnSearch);
+
         console.log(winnerIs);
+    })
+
+
+    it("Should be able to buy some tokens, except the admin!", async()=>{
+        let instance = await Lotteria.deployed();
+        let tokenInstance = await LotteriaToken.deployed();
+        await instance.initLotteryTokenContract(tokenInstance.address);
+        await instance.buyTokens({from: accounts[7], value: 200000000000000000});
+        let newBalanceAfterBuying = await tokenInstance.balanceOf(accounts[7]);
+        assert.equal(parseFloat(newBalanceAfterBuying), 10);
+        console.log(newBalanceAfterBuying);
     })
 })
